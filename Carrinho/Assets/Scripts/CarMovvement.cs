@@ -21,6 +21,9 @@ public class CarMovvement : MonoBehaviour
 
     private void Update()
     {
+        X = Input.GetAxis("Horizontal");
+
+
         Vector2 speed = transform.up * (Y * acceleration);
         rigidbody2D.AddForce(speed);
 

@@ -43,6 +43,6 @@ public class CameraControl : MonoBehaviour
 
         triggerCount += 1;
 
-        CanRotate = true;w
+        CanRotate = true;
     }
 }

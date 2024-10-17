@@ -10,7 +10,6 @@ public class CameraFollow : MonoBehaviour
 
     public float smoothness;
 
-    // Update is called once per frame
     void Update()
     {
         Vector3 delayedPos = Vector3.Lerp(transform.position,target.position, smoothness);

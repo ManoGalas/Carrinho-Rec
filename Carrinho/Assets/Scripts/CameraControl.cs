@@ -19,7 +19,7 @@ public class CameraControl : MonoBehaviour
         Cam = Camera.main;
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (CanRotate)
         {
@@ -43,6 +43,6 @@ public class CameraControl : MonoBehaviour
 
         triggerCount += 1;
 
-        CanRotate = true;
+        CanRotate = true;w
     }
 }

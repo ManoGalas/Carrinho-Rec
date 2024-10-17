@@ -35,9 +35,9 @@ public class CarMovvement : MonoBehaviour
 
         Debug.Log("Acelerando com força: " + forwardForce);  // Verifica se a força está sendo aplicada
 
-        // Rotação baseada na entrada horizontal (esquerda/direita) e velocidade do carro
-        float steeringAmount = inputX * steering * (rigidbody2D.velocity.magnitude / MaxSpeed);
-        rigidbody2D.rotation -= steeringAmount;
+        // Aplicando a rotação baseada na entrada horizontal (esquerda/direita)
+        float steeringAmount = inputX * steering;
+        rigidbody2D.MoveRotation(rigidbody2D.rotation - steeringAmount);  // Aplicação correta da rotação
 
         // Limita a velocidade máxima
         if (rigidbody2D.velocity.magnitude > MaxSpeed)

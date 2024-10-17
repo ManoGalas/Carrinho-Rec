@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CarMovement : MonoBehaviour
+public class CarMovvement : MonoBehaviour
 {
     public float MaxSpeed = 10f;  // Velocidade máxima
     public float acceleration = 5f;  // Aceleração

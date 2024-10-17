@@ -41,16 +41,12 @@ public class GameManager : MonoBehaviourPun
         // Cria um novo jogador na rede
         if (PhotonNetwork.IsConnectedAndReady)
         {
-            PhotonNetwork.Instantiate(playerPrefab.name,TransformPosition.position , Quaternion.identity);
+            PhotonNetwork.Instantiate("prefab/carrinho",TransformPosition.position , Quaternion.identity);
         }
 
     }
 
-    // Atualiza a pontuação de cada jogador
-    public void UpdateScore(string playerName)
-    {
-        photonView.RPC("RPCUpdateScore", RpcTarget.All, playerName);
-    }
+
 
     // Método chamado quando o jogo termina
     void EndGame()

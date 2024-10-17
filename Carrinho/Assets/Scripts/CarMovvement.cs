@@ -1,59 +1,58 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CarMovvement : MonoBehaviour
+public class CarMovement : MonoBehaviour
 {
-    public float MaxSpeed;
-    public float acceleration;
-    public float steering;
+    public float MaxSpeed = 10f;  // Velocidade máxima
+    public float acceleration = 5f;  // Aceleração
+    public float steering = 2f;  // Sensibilidade da direção
 
-    Rigidbody2D rigidbody2D;
+    private Rigidbody2D rigidbody2D;
 
-    float X;
-    float Y = 1;
+    private float inputX;  // Entrada no eixo X (horizontal)
+    private float inputY;  // Entrada no eixo Y (vertical)
 
     private void Start()
     {
+        // Verificação inicial
         rigidbody2D = GetComponent<Rigidbody2D>();
+        if (rigidbody2D == null)
+        {
+            Debug.LogError("Rigidbody2D não encontrado!");
+        }
     }
 
     private void Update()
     {
-        X = Input.GetAxis("Horizontal");
+        // Captura a entrada do jogador
+        inputX = Input.GetAxis("Horizontal");  // Direção (esquerda/direita)
+        inputY = Input.GetAxis("Vertical");    // Aceleração (frente/trás)
 
+        // Aplicação da aceleração (movimento para frente e para trás)
+        Vector2 forwardForce = transform.right * (inputY * acceleration);  // Aplica no eixo direito (movimento para frente no eixo X)
+        rigidbody2D.AddForce(forwardForce);
 
-        Vector2 speed = transform.up * (Y * acceleration);
-        rigidbody2D.AddForce(speed);
+        Debug.Log("Acelerando com força: " + forwardForce);  // Verifica se a força está sendo aplicada
 
-        float direction = Vector2.Dot(rigidbody2D.velocity, rigidbody2D.GetRelativeVector(Vector2.up));
+        // Rotação baseada na entrada horizontal (esquerda/direita) e velocidade do carro
+        float steeringAmount = inputX * steering * (rigidbody2D.velocity.magnitude / MaxSpeed);
+        rigidbody2D.rotation -= steeringAmount;
 
-        if (acceleration > 0)
-        {
-            if (direction > 0)
-            {
-                rigidbody2D.rotation -= X * steering * (rigidbody2D.velocity.magnitude / MaxSpeed);
-            }
-            else
-            {
-                rigidbody2D.rotation += X * steering * (rigidbody2D.velocity.magnitude / MaxSpeed);
-            }
-        }
-
-        float driftForce = Vector2.Dot(rigidbody2D.velocity, rigidbody2D.GetRelativeVector(Vector2.left)) * 2.0f;
-
-        Vector2 relativeForce = Vector2.right * driftForce;
-
-        rigidbody2D.AddForce(rigidbody2D.GetRelativeVector(relativeForce));
-
+        // Limita a velocidade máxima
         if (rigidbody2D.velocity.magnitude > MaxSpeed)
         {
             rigidbody2D.velocity = rigidbody2D.velocity.normalized * MaxSpeed;
         }
 
-        Debug.DrawLine(rigidbody2D.position, rigidbody2D.GetRelativePoint(relativeForce),Color.green);
-    }
+        // Reduz o deslizamento lateral (drift)
+        Vector2 forwardVelocity = transform.right * Vector2.Dot(rigidbody2D.velocity, transform.right);  // Alterado para o eixo X
+        Vector2 rightVelocity = transform.up * Vector2.Dot(rigidbody2D.velocity, transform.up);
 
-   
+        // Aplica uma força contrária ao drift para reduzir o efeito de derrapagem
+        rigidbody2D.velocity = forwardVelocity + rightVelocity * 0.2f;  // Reduzimos o impacto da força lateral
+
+        // Visualiza a posição e força aplicada (debug)
+        Debug.DrawLine(rigidbody2D.position, rigidbody2D.position + forwardForce, Color.green);
+    }
 }

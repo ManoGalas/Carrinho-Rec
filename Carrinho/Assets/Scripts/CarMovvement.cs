@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;  // Importa o namespace do Photon
 
-public class CarMovvement : MonoBehaviour
+public class CarMovvement : MonoBehaviourPunCallbacks, IPunObservable
 {
     public float MaxSpeed = 10f;  // Velocidade máxima
     public float acceleration = 5f;  // Aceleração
@@ -25,10 +26,23 @@ public class CarMovvement : MonoBehaviour
 
     private void Update()
     {
+        // Se não for o dono do objeto, não aplica o controle
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
         // Captura a entrada do jogador
         inputX = Input.GetAxis("Horizontal");  // Direção (esquerda/direita)
         inputY = Input.GetAxis("Vertical");    // Aceleração (frente/trás)
 
+        // Chama o RPC para sincronizar o movimento
+        photonView.RPC("MoveCar", RpcTarget.All, inputX, inputY);
+    }
+
+    [PunRPC]
+    public void MoveCar(float inputX, float inputY)
+    {
         // Aplicação da aceleração (movimento para frente e para trás)
         Vector2 forwardForce = transform.right * (inputY * acceleration);  // Aplica no eixo direito (movimento para frente no eixo X)
         rigidbody2D.AddForce(forwardForce);
@@ -54,5 +68,24 @@ public class CarMovvement : MonoBehaviour
 
         // Visualiza a posição e força aplicada (debug)
         Debug.DrawLine(rigidbody2D.position, rigidbody2D.position + forwardForce, Color.green);
+    }
+
+    // Sincronização de dados pela rede
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            // O jogador local está enviando dados para os outros jogadores
+            stream.SendNext(rigidbody2D.position);
+            stream.SendNext(rigidbody2D.rotation);
+            stream.SendNext(rigidbody2D.velocity);
+        }
+        else
+        {
+            // Recebendo dados de outros jogadores
+            rigidbody2D.position = (Vector2)stream.ReceiveNext();
+            rigidbody2D.rotation = (float)stream.ReceiveNext();
+            rigidbody2D.velocity = (Vector2)stream.ReceiveNext();
+        }
     }
 }

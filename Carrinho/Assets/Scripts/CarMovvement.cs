@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;  // Adicione o Photon
 
-public class CarMovvement : MonoBehaviour
+public class CarMovvement : MonoBehaviourPun
 {
     public float MaxSpeed = 10f;  // Velocidade máxima
     public float acceleration = 5f;  // Aceleração
@@ -25,10 +26,21 @@ public class CarMovvement : MonoBehaviour
 
     private void Update()
     {
-        // Captura a entrada do jogador
-        inputX = Input.GetAxis("Horizontal");  // Direção (esquerda/direita)
-        inputY = Input.GetAxis("Vertical");    // Aceleração (frente/trás)
+        // Apenas o jogador que possui o controle pode movimentar o carro
+        if (photonView.IsMine)
+        {
+            // Captura a entrada do jogador
+            inputX = Input.GetAxis("Horizontal");  // Direção (esquerda/direita)
+            inputY = Input.GetAxis("Vertical");    // Aceleração (frente/trás)
 
+            // Chama a função de movimento através de RPC
+            photonView.RPC("MoveCar", RpcTarget.All, inputX, inputY);
+        }
+    }
+
+    [PunRPC]
+    public void MoveCar(float inputX, float inputY)
+    {
         // Aplicação da aceleração (movimento para frente e para trás)
         Vector2 forwardForce = transform.right * (inputY * acceleration);  // Aplica no eixo direito (movimento para frente no eixo X)
         rigidbody2D.AddForce(forwardForce);
